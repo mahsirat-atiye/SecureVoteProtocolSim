@@ -22,7 +22,7 @@ class AS:
     def add_symmetric_key(self, national_code, symmetric_key_with_as):
         self.symmetric_keys[national_code] = symmetric_key_with_as
 
-    def response_to_authentication_request_part3(self, messages_signatures, ca_pub_key, ca):
+    def response_to_authentication_request_part3(self, messages_signatures, ca_pub_key):
         encrypted_messages, signatures, encrypted_national_code, signed_national_code = messages_signatures
         v1 = verify_multi_packet(encrypted_messages, signatures, ca_pub_key)
         v2 = verify(encrypted_national_code, signed_national_code, ca_pub_key)
@@ -44,6 +44,15 @@ class AS:
 
             padding_character = "{"
             encrypted_T = encrypt_message(str(T), secret_key, padding_character)
+            encrypted_i_code = encrypt_message(national_code, secret_key, padding_character)
+            encrypted_pair_key = encrypt_message(str(key.exportKey()), secret_key, padding_character)
 
+            sending_messages = [encrypted_i_code, encrypted_pair_key, encrypted_T]
 
+            signed_encrypted_T = sign(encrypted_T, self.key_pair)
+            signed_encrypted_i_code = sign(encrypted_i_code, self.key_pair)
+            signed_encrypted_pair_key = sign(encrypted_pair_key, self.key_pair)
 
+            signs = [signed_encrypted_i_code, signed_encrypted_pair_key, signed_encrypted_T]
+
+            return (sending_messages, signs)
