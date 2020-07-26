@@ -15,6 +15,10 @@ def encrypt(message, key):
     encrypted = encrypter.encrypt(message.encode('UTF-8'))
     return encrypted
 
+def encrypt_binary(message, key):
+    encrypter = PKCS1_OAEP.new(key)
+    encrypted = encrypter.encrypt(message)
+    return encrypted
 
 def decrypt_multi_packet(messages, key_pair):
     decrypter = PKCS1_OAEP.new(key_pair)
@@ -35,8 +39,7 @@ def encrypt_multi_packet(message, key):
         encrypts.append(encrypted)
 
     msg = message[100 * mlen:]
-    print(len(msg))
-    print(mlen)
+
     encrypted = encrypter.encrypt(msg)
     encrypts.append(encrypted)
     return encrypts
