@@ -1,7 +1,7 @@
 from Crypto.PublicKey import RSA
 
 from models.Utils import decrypt, encrypt, sign, verify_multi_packet, decrypt_multi_packet, verify, \
-    encrypt_multi_packet, encrypt_binary, encrypt_message, generate_secret_key_for_AES_cipher
+    encrypt_multi_packet, encrypt_binary, encrypt_message, generate_secret_key_for_AES_cipher, encrypt_message_binary
 
 
 class AS:
@@ -29,27 +29,29 @@ class AS:
 
         v = v1 and v2
         if v:
-            print("verified: response_to_authentication_request_part3")
+
             msg = decrypt_multi_packet(encrypted_messages, self.key_pair)
             national_code = decrypt(encrypted_national_code, self.key_pair)
-            print("---------")
-            print(national_code)
             national_code_binary = national_code
-
             national_code = str(national_code_binary)[2: -1]
+
             secret_key = self.symmetric_keys[national_code]
             key = RSA.importKey(msg)
             voter_pub_key = RSA.importKey(key.publickey().exportKey())
-            T = encrypt_multi_packet((encrypt_binary(national_code_binary, self.key_pair)), voter_pub_key)
+            T = (sign(national_code_binary, self.key_pair))
+
+
+            T = encrypt_multi_packet(T, voter_pub_key)
+
 
             padding_character = "{"
-            encrypted_T = encrypt_message(str(T), secret_key, padding_character)
+            encrypted_T = [encrypt_message_binary((part_t), secret_key) for part_t in T]
             encrypted_i_code = encrypt_message(national_code, secret_key, padding_character)
             encrypted_pair_key = encrypt_message(str(key.exportKey()), secret_key, padding_character)
 
             sending_messages = [encrypted_i_code, encrypted_pair_key, encrypted_T]
 
-            signed_encrypted_T = sign(encrypted_T, self.key_pair)
+            signed_encrypted_T = [sign(encrypted_part_T, self.key_pair) for encrypted_part_T in encrypted_T]
             signed_encrypted_i_code = sign(encrypted_i_code, self.key_pair)
             signed_encrypted_pair_key = sign(encrypted_pair_key, self.key_pair)
 
