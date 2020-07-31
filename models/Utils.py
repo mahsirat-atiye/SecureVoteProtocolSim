@@ -21,6 +21,13 @@ def encrypt_message(private_msg, encoded_secret_key, padding_character):
     encoded_encrypted_msg = base64.b64encode(encrypted_msg)
     return encoded_encrypted_msg
 
+def encrypt_message_binary(private_msg, encoded_secret_key):
+    secret_key = base64.b64decode(encoded_secret_key)
+    cipher = AES.new(secret_key, AES.MODE_ECB)
+    padded_private_msg = private_msg
+    encrypted_msg = cipher.encrypt(padded_private_msg)
+    encoded_encrypted_msg = base64.b64encode(encrypted_msg)
+    return encoded_encrypted_msg
 
 def decrypt_message(encoded_encrypted_msg, encoded_secret_key, padding_character):
     secret_key = base64.b64decode(encoded_secret_key)
@@ -28,7 +35,15 @@ def decrypt_message(encoded_encrypted_msg, encoded_secret_key, padding_character
     cipher = AES.new(secret_key, AES.MODE_ECB)
     decrypted_msg = cipher.decrypt(encrypted_msg)
     unpadded_private_msg = decrypted_msg.rstrip(padding_character.encode('UTF-8'))
-    return unpadded_private_msg
+    return decrypted_msg
+def decrypt_message_binary(encoded_encrypted_msg, encoded_secret_key):
+    secret_key = base64.b64decode(encoded_secret_key)
+    encrypted_msg = base64.b64decode(encoded_encrypted_msg)
+    cipher = AES.new(secret_key, AES.MODE_ECB)
+    decrypted_msg = cipher.decrypt(encrypted_msg)
+
+    unpadded_private_msg = decrypted_msg.rstrip(padding_character.encode('UTF-8'))
+    return decrypted_msg
 
 
 ####### BEGIN HERE #######
