@@ -1,0 +1,1 @@
+This code simulates a secure electronic voting protocol using cryptographic techniques and a set of servers. The code is written in Python and involves several key components: a Certification Authority (CA), an Authentication Server (AS), a Voting Server (VS), and Voters.
